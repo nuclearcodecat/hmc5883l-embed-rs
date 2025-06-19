@@ -14,33 +14,29 @@
 
 mod hmc5883l;
 
-// use cortex_m_semihosting::hprintln;
-use panic_semihosting as _;
-
 use cortex_m_rt::entry;
+use panic_halt as _;
+
+use hmc5883l::Hmc5883l;
 use stm32f1xx_hal::{
-	i2c::{BlockingI2c, DutyCycle, Mode},
+	i2c::{BlockingI2c, Mode},
 	pac,
 	prelude::*,
 };
 
-use hmc5883l::Hmc5883l;
-
 #[entry]
 fn main() -> ! {
-	// Get access to the core peripherals from the cortex-m crate
-	let cp = cortex_m::Peripherals::take().unwrap();
 	// Get access to the device specific peripherals from the peripheral access crate
-	let dp = pac::Peripherals::take().unwrap();
+	let p = pac::Peripherals::take().unwrap();
 
 	// Take ownership over the raw flash and rcc devices and convert them into the corresponding
 	// HAL structs
-	let mut flash = dp.FLASH.constrain();
-	let rcc = dp.RCC.constrain();
-	let mut afio = dp.AFIO.constrain();
+	let mut flash = p.FLASH.constrain();
+	let rcc = p.RCC.constrain();
+	let mut afio = p.AFIO.constrain();
 	// Freeze the configuration of all the clocks in the system and store the frozen frequencies in
 	// `clocks`
-	let clocks = if 1 == 1 {
+	let clocks = if false == true {
 		rcc.cfgr.use_hse(8.MHz()).freeze(&mut flash.acr)
 	} else {
 		// My blue pill with a stm32f103 clone dose not seem to respect rcc so will not compensate its pulse legths
@@ -54,28 +50,23 @@ fn main() -> ! {
 	};
 
 	// Acquire the GPIOB peripheral
-	let mut gpiob = dp.GPIOB.split();
+	let mut gpiob = p.GPIOB.split();
 
-	let scl = gpiob.pb6;
-	let sda = gpiob.pb7;
+	let scl = gpiob.pb6.into_alternate_open_drain(&mut gpiob.crl);
+	let sda = gpiob.pb7.into_alternate_open_drain(&mut gpiob.crl);
 
-	let i2c = dp
-		.I2C1
-		.blocking_i2c(
-			(scl, sda),
-			Mode::Fast {
-				frequency: 400.kHz(),
-				duty_cycle: DutyCycle::Ratio16to9,
-			},
-			&clocks,
-			1000,
-			10,
-			1000,
-			1000,
-		);
+	let i2c = BlockingI2c::i2c1(
+		p.I2C1,
+      (scl, sda),
+		&mut afio.mapr,
+		Mode::Fast { frequency: 400.kHz(), duty_cycle: stm32f1xx_hal::i2c::DutyCycle::Ratio2to1 },
+		clocks,
+		1000,
+		10,
+		1000,
+		1000,
+	);
 
-	// The Adafruit boards have address 0x77 without closing the jumper on the back, the BME280 lib connects to 0x77 with `new_secondary`, use
-	// `new_primary` for 0x76 if you close the jumper/solder bridge.
 	let mut sens = Hmc5883l::new(i2c);
-	loop {};
+	loop {}
 }
