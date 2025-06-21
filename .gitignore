@@ -7,3 +7,5 @@ flash.sh
 gdb.sh
 memory.x
 /.cargo
+.gdbinit
+/examples/*/target

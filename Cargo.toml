@@ -1,5 +1,5 @@
 [package]
-name = "hmc5883l"
+name = "hmc5883l-embed"
 version = "0.1.0"
 edition = "2024"
 description = "hmc5883l magnetometer driver for rust's embdedded-hal"
@@ -8,6 +8,7 @@ repository = "https://github.com/nuclearcodecat/hmc5883l-rs"
 keywords = ["embedded-hal", "i2c", "sensor", "magnetometer"]
 categories = ["embedded", "no-std", "hardware-support"]
 readme = "README.md"
+authors = ["nuclearcodecat"]
 
 [dependencies]
 embedded-hal = "0.2.7"

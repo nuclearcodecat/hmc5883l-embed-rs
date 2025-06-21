@@ -1,4 +1,5 @@
-// todo do something about the panics
+// todo  do something about the panics
+// todo  embedded_hal 1.0.0 support
 #![no_std]
 
 use embedded_hal::blocking::i2c::{Write, WriteRead, Read};
@@ -44,7 +45,7 @@ impl Axes {
 }
 
 #[repr(u8)]
-pub enum OpMode {
+pub enum OperationModes {
 	Continuous,
 	Single,
 	Idle,
@@ -114,7 +115,7 @@ where
 		self.i2c.write(IIC_ADDR, &[Registers::Mode as u8, val])
 	}
 
-	pub fn set_mode(&mut self, mode: OpMode) -> Result<(), E> {
+	pub fn set_operating_mode(&mut self, mode: OperationModes) -> Result<(), E> {
 		// this is unnecessary if the hs bit does nothing
 		let reg = self.read_reg(Registers::Mode as u8)?;
 		let val = (reg & !0x03) | mode as u8;
