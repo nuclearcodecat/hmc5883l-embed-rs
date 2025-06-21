@@ -15,7 +15,9 @@
 mod hmc5883l;
 
 use cortex_m_rt::entry;
-use panic_halt as _;
+use defmt::println;
+use panic_rtt_target as _;
+use defmt_rtt as _;
 
 use hmc5883l::Hmc5883l;
 use stm32f1xx_hal::{
@@ -55,11 +57,14 @@ fn main() -> ! {
 	let scl = gpiob.pb6.into_alternate_open_drain(&mut gpiob.crl);
 	let sda = gpiob.pb7.into_alternate_open_drain(&mut gpiob.crl);
 
-	let i2c = BlockingI2c::i2c1(
+	let mut i2c = BlockingI2c::i2c1(
 		p.I2C1,
-      (scl, sda),
+		(scl, sda),
 		&mut afio.mapr,
-		Mode::Fast { frequency: 400.kHz(), duty_cycle: stm32f1xx_hal::i2c::DutyCycle::Ratio2to1 },
+		Mode::Fast {
+			frequency: 400.kHz(),
+			duty_cycle: stm32f1xx_hal::i2c::DutyCycle::Ratio2to1,
+		},
 		clocks,
 		1000,
 		10,
@@ -67,6 +72,32 @@ fn main() -> ! {
 		1000,
 	);
 
-	let mut sens = Hmc5883l::new(i2c);
-	loop {}
+	// let mut gpioa = p.GPIOA.split();
+	// let tx = gpioa.pa9.into_alternate_push_pull(&mut gpioa.crh);
+	// let rx = gpioa.pa10;
+	// let mut usart = Serial::new(
+	// 	p.USART1,
+	// 	(tx, rx),
+	// 	&mut afio.mapr,
+	// 	Config::default().baudrate(Bps(115200)),
+	// 	&clocks,
+	// );
+
+	println!("rtt test!");
+
+	match i2c.write(0x1e, &[]) {
+		Ok(_) => {},
+		Err(e) => { defmt::panic!(""); },
+	};
+
+	println!("died after sensor.new!");
+	let mut sensor = Hmc5883l::new(i2c);
+	println!("died after sensor.ident!");
+	println!("{}", sensor.identify());
+	loop {
+		println!("died after get_angle!");
+		let angle = sensor.get_angle(hmc5883l::DatumRegisters::X);
+		println!("died after writing the angle!");
+		println!("x axis: {}", angle);
+	}
 }

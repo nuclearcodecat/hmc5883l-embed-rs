@@ -1,2 +1,9 @@
 /target
 Cargo.lock
+.gdbinit
+*.ignore
+openocd.sh
+flash.sh
+gdb.sh
+memory.x
+/.cargo

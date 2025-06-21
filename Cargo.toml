@@ -2,13 +2,12 @@
 name = "hmc5883l"
 version = "0.1.0"
 edition = "2024"
+description = "hmc5883l magnetometer driver for rust's embdedded-hal"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/nuclearcodecat/hmc5883l-rs"
+keywords = ["embedded-hal", "i2c", "sensor", "magnetometer"]
+categories = ["embedded", "no-std", "hardware-support"]
+readme = "README.md"
 
 [dependencies]
 embedded-hal = "0.2.7"
-panic-halt = "0.2.0"
-fugit = "0.3.7"
-cortex-m-rt = "0.7.5"
-
-[dependencies.stm32f1xx-hal]
-version = "0.10.0"
-features = ["rt", "stm32f103", "medium"]
