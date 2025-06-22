@@ -1,5 +1,5 @@
 [package]
-name = "stm32f1_xyz_read"
+name = "stm32f1_basic"
 version = "0.1.0"
 edition = "2024"
 
@@ -10,11 +10,13 @@ defmt = "1.0.1"
 defmt-rtt = "1.0.0"
 panic-rtt-target = "0.2.0"
 hmc5883l-embed = { path = "../../" }
+embedded-hal = "0.2.7"
+libm = "0.2.15"
 
 [dependencies.stm32f1xx-hal]
 version = "0.10.0"
 features = ["rt", "stm32f103", "medium"]
 
 [[bin]]
-name = "stm32f1_xyz_read"
-path = "stm32f1_xyz_read.rs"
+name = "stm32f1_basic"
+path = "stm32f1_basic.rs"
